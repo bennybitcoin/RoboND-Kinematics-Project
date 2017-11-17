@@ -46,12 +46,20 @@ def handle_calculate_IK(req):
 	
    ###Kuka KR210###
    #DH Parameters
-    DH = {alpha0: 0,     a0: 0,      d1: 0.75,
+    DH = {alpha0: 0,     a0: 0,      d1: 0.75,	q1:0,
          alpha1: -pi/2, a1: 0.35,   d2: 0,     q2: q2-pi/2,
-         alpha2: 0,     a2: 1.25,   d3: 0,
-         alpha3: -pi/2, a3: -0.054, d4: 1.50,
-         alpha4: pi/2,  a4: 0,      d5: 0,
-         alpha5: -pi/2, a5: 0,      d6: 0,
+         alpha2: 0,     a2: 1.25,   d3: 0,	q3: 0,
+         alpha3: -pi/2, a3: -0.054, d4: 1.50,	q4: 0,
+         alpha4: pi/2,  a4: 0,      d5: 0,	q5: 0,
+         alpha5: -pi/2, a5: 0,      d6: 0,	q6: 0,
+         alpha6: 0,     a6: 0,      d7: 0.303, q7: 0}
+   #DH test parameters	
+   DH_test = {alpha0: 0,     a0: 0,      d1: 0.75,	q1:0,
+         alpha1: 0, a1: 0.35,   d2: 0,     q2: q2-pi/2,
+         alpha2: 0,     a2: 1.25,   d3: 0,	q3: 0,
+         alpha3: -pi/2, a3: -0.054, d4: 1.50,	q4: 0,
+         alpha4: pi/2,  a4: 0,      d5: 0,	q5: 0,
+         alpha5: -pi/2, a5: 0,      d6: 0,	q6: 0,
          alpha6: 0,     a6: 0,      d7: 0.303, q7: 0}
 
     #            
@@ -95,6 +103,15 @@ def handle_calculate_IK(req):
     	             [        0,         0, 1]])
 
     EE_rot = Yaw_rot * Pitch_rot * Roll_rot
+	
+    #Numerically Evaluate transforms to compare with tf_echo
+    print("T0_1 = ",T0_1 = Trans_Matrix(alpha0, a0, d1, q1).subs(DH_test))
+    print("T1_2 = ",T1_2 = Trans_Matrix(alpha1, a1, d2, q2).subs(DH_test))
+    print("T2_3 = ",T2_3 = Trans_Matrix(alpha2, a2, d3, q3).subs(DH_test))
+    print("T3_4 = ",T3_4 = Trans_Matrix(alpha3, a3, d5, q4).subs(DH_test))
+    print("T4_5 = ",T4_5 = Trans_Matrix(alpha4, a4, d5, q5).subs(DH_test))
+    print("T5_6 = ",T5_6 = Trans_Matrix(alpha5, a5, d6, q6).subs(DH_test))
+    print("T6_G = ",T6_G = Trans_Matrix(alpha6, a6, d7, q7).subs(DH_test))
 
     # Compensate for rotation discrepancy between DH parameters and Gazebo
     # calculate error between urdf and dh
