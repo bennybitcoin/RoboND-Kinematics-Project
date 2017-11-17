@@ -25,14 +25,13 @@ def handle_calculate_IK(req):
         print "No valid poses received"
         return -1
     else:
-		
         ### Your FK code here
         # Create symbols
         joint_trajectory_list = []
         for x in xrange(0, len(req.poses)):
-        	joint_trajectory_point = JointTrajectoryPoint()
+            joint_trajectory_point = JointTrajectoryPoint()
  
-		# Create Modified DH parameters
+    # Create Modified DH parameters
     d1, d2, d3, d4, d5, d6, d7 = symbols('d1:8') #link offsets
     a0, a1, a2, a3, a4, a5, a6 = symbols('a0:7') #link lengths
     alpha0, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6 = symbols('alpha0:7') #twist angle
@@ -43,32 +42,32 @@ def handle_calculate_IK(req):
     #Variables for Rotation Matrix
     r, p, y = symbols('r p y')
     #x, y, z = symbols('x y z')
-	
+
    ###Kuka KR210###
    #DH Parameters
-    DH = {alpha0: 0,     a0: 0,      d1: 0.75,	q1:0,
+    DH = {alpha0: 0,     a0: 0,      d1: 0.75,   q1:0,
          alpha1: -pi/2, a1: 0.35,   d2: 0,     q2: q2-pi/2,
-         alpha2: 0,     a2: 1.25,   d3: 0,	q3: 0,
-         alpha3: -pi/2, a3: -0.054, d4: 1.50,	q4: 0,
-         alpha4: pi/2,  a4: 0,      d5: 0,	q5: 0,
-         alpha5: -pi/2, a5: 0,      d6: 0,	q6: 0,
-         alpha6: 0,     a6: 0,      d7: 0.303, q7: 0}
+         alpha2: 0,     a2: 1.25,   d3: 0,  q3: 0,
+         alpha3: -pi/2, a3: -0.054, d4: 1.50,   q4: 0,
+         alpha4: pi/2,  a4: 0,      d5: 0,  q5: 0,
+         alpha5: -pi/2, a5: 0,      d6: 0,  q6: 0,
+         alpha6: 0,     a6: 0,      d7: 0.303,  q7: 0}
    #DH test parameters	
-   DH_test = {alpha0: 0,     a0: 0,      d1: 0.75,	q1:0,
-         alpha1: 0, a1: 0.35,   d2: 0,     q2: q2-pi/2,
-         alpha2: 0,     a2: 1.25,   d3: 0,	q3: 0,
-         alpha3: -pi/2, a3: -0.054, d4: 1.50,	q4: 0,
-         alpha4: pi/2,  a4: 0,      d5: 0,	q5: 0,
-         alpha5: -pi/2, a5: 0,      d6: 0,	q6: 0,
-         alpha6: 0,     a6: 0,      d7: 0.303, q7: 0}
+   # DH_test = {alpha0: 0,     a0: 0,      d1: 0.75,  q1:0,
+   #       alpha1: 0, a1: 0.35,   d2: 0,  q2: q2-pi/2,
+   #       alpha2: 0,     a2: 1.25,   d3: 0,  q3: 0,
+   #       alpha3: -pi/2, a3: -0.054, d4: 1.50,   q4: 0,
+   #       alpha4: pi/2,  a4: 0,      d5: 0,  q5: 0,
+   #       alpha5: -pi/2, a5: 0,      d6: 0,  q6: 0,
+   #       alpha6: 0,     a6: 0,      d7: 0.303,  q7: 0}
 
     #            
     # Define Modified DH Transformation matrix function
     def Trans_Matrix(alpha, a, d, q):
-    	TF = Matrix([[				cos(q),		-sin(q),	0,		a],
-    		[	sin(q)*cos(alpha), cos(q)*cos(alpha), -sin(alpha), -sin(alpha)*d],
-    		[	sin(q)*sin(alpha), cos(q)*sin(alpha),  cos(alpha), cos(alpha)*d],
-    		[ 					0,					0,			0,				1]])
+    	TF = Matrix([[cos(q),  -sin(q),    0,  a],
+    		[sin(q)*cos(alpha),  cos(q)*cos(alpha),  -sin(alpha),    -sin(alpha)*d],
+    		[sin(q)*sin(alpha),   cos(q)*sin(alpha),  cos(alpha), cos(alpha)*d],
+    		[0,       0,      0,      1]])
     	return TF
 
 
@@ -105,13 +104,13 @@ def handle_calculate_IK(req):
     EE_rot = Yaw_rot * Pitch_rot * Roll_rot
 	
     #Numerically Evaluate transforms to compare with tf_echo
-    print("T0_1 = ",T0_1 = Trans_Matrix(alpha0, a0, d1, q1).subs(DH_test))
-    print("T1_2 = ",T1_2 = Trans_Matrix(alpha1, a1, d2, q2).subs(DH_test))
-    print("T2_3 = ",T2_3 = Trans_Matrix(alpha2, a2, d3, q3).subs(DH_test))
-    print("T3_4 = ",T3_4 = Trans_Matrix(alpha3, a3, d5, q4).subs(DH_test))
-    print("T4_5 = ",T4_5 = Trans_Matrix(alpha4, a4, d5, q5).subs(DH_test))
-    print("T5_6 = ",T5_6 = Trans_Matrix(alpha5, a5, d6, q6).subs(DH_test))
-    print("T6_G = ",T6_G = Trans_Matrix(alpha6, a6, d7, q7).subs(DH_test))
+    # print("T0_1 = ",T0_1 = Trans_Matrix(alpha0, a0, d1, q1).subs(DH_test))
+    # print("T1_2 = ",T1_2 = Trans_Matrix(alpha1, a1, d2, q2).subs(DH_test))
+    # print("T2_3 = ",T2_3 = Trans_Matrix(alpha2, a2, d3, q3).subs(DH_test))
+    # print("T3_4 = ",T3_4 = Trans_Matrix(alpha3, a3, d5, q4).subs(DH_test))
+    # print("T4_5 = ",T4_5 = Trans_Matrix(alpha4, a4, d5, q5).subs(DH_test))
+    # print("T5_6 = ",T5_6 = Trans_Matrix(alpha5, a5, d6, q6).subs(DH_test))
+    # print("T6_G = ",T6_G = Trans_Matrix(alpha6, a6, d7, q7).subs(DH_test))
 
     # Compensate for rotation discrepancy between DH parameters and Gazebo
     # calculate error between urdf and dh
