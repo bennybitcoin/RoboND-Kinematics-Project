@@ -38,12 +38,14 @@ def handle_calculate_IK(req):
     alpha0, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6 = symbols('alpha0:7') #twist angle
 
     # Joint angle symbols
-    q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8')
+    q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8') #theta_i
 
     #Variables for Rotation Matrix
     r, p, y = symbols('r p y')
     #x, y, z = symbols('x y z')
-
+	
+   ###Kuka KR210###
+   #DH Parameters
     DH = {alpha0: 0,     a0: 0,      d1: 0.75,
          alpha1: -pi/2, a1: 0.35,   d2: 0,     q2: q2-pi/2,
          alpha2: 0,     a2: 1.25,   d3: 0,
@@ -51,8 +53,9 @@ def handle_calculate_IK(req):
          alpha4: pi/2,  a4: 0,      d5: 0,
          alpha5: -pi/2, a5: 0,      d6: 0,
          alpha6: 0,     a6: 0,      d7: 0.303, q7: 0}
+
     #            
-    # Define Modified DH Transformation matrix
+    # Define Modified DH Transformation matrix function
     def Trans_Matrix(alpha, a, d, q):
     	TF = Matrix([[				cos(q),		-sin(q),	0,		a],
     		[	sin(q)*cos(alpha), cos(q)*cos(alpha), -sin(alpha), -sin(alpha)*d],
