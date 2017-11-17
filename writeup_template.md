@@ -40,9 +40,10 @@ Here is an example of how to include an image in your writeup.
 
 ![alt text][image1]
 
-#### 2. Using the DH parameter table you derived earlier, create individual transformation matrices about each joint. In addition, also generate a generalized homogeneous transform between base_link and gripper_link using only end-effector(gripper) pose.
+I first created a sketch of the Denavit Hartenberg reference frame:
 
 
+Then I used the values from KR210 urdf to create my DH parameter table:
 
 Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
 --- | --- | --- | --- | ---
@@ -54,81 +55,16 @@ Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
 5->6 | - pi/2 | 0 | 0 | q6
 6->EE | 0 | 0 | 0.303 | 0
 
+#### 2. Using the DH parameter table you derived earlier, create individual transformation matrices about each joint. In addition, also generate a generalized homogeneous transform between base_link and gripper_link using only end-effector(gripper) pose.
+
+
+
+
+
 
 
 # Create Transform between base_link and gripper link (EE_rot)
-    d1, d2, d3, d4, d5, d6, d7 = symbols('d1:8') #link offsets
-    a0, a1, a2, a3, a4, a5, a6 = symbols('a0:7') #link lengths
-    alpha0, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6 = symbols('alpha0:7') #twist angle
-
-    # Joint angle symbols
-    q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8')
-
-    #Variables for Rotation Matrix
-    r, p, y = symbols('r p y')
-    #x, y, z = symbols('x y z')
-
-    DH = {alpha0: 0,     a0: 0,      d1: 0.75,
-         alpha1: -pi/2, a1: 0.35,   d2: 0,     q2: q2-pi/2,
-         alpha2: 0,     a2: 1.25,   d3: 0,
-         alpha3: -pi/2, a3: -0.054, d4: 1.50,
-         alpha4: pi/2,  a4: 0,      d5: 0,
-         alpha5: -pi/2, a5: 0,      d6: 0,
-         alpha6: 0,     a6: 0,      d7: 0.303, q7: 0}
-    #            
-    # Define Modified DH Transformation matrix
-    def Trans_Matrix(alpha, a, d, q):
-    	TF = Matrix([[				cos(q),		-sin(q),	0,		a],
-    		[	sin(q)*cos(alpha), cos(q)*cos(alpha), -sin(alpha), -sin(alpha)*d],
-    		[	sin(q)*sin(alpha), cos(q)*sin(alpha),  cos(alpha), cos(alpha)*d],
-    		[ 					0,					0,			0,				1]])
-    	return TF
-
-
-    #
-    # Create individual transformation matrices
-    T0_1 = Trans_Matrix(alpha0, a0, d1, q1).subs(DH)
-    T1_2 = Trans_Matrix(alpha1, a1, d2, q2).subs(DH)
-    T2_3 = Trans_Matrix(alpha2, a2, d3, q3).subs(DH)
-    T3_4 = Trans_Matrix(alpha3, a3, d4, q4).subs(DH)
-    T4_5 = Trans_Matrix(alpha4, a4, d5, q5).subs(DH)
-    T5_6 = Trans_Matrix(alpha5, a5, d6, q6).subs(DH)
-    T6_EE = Trans_Matrix(alpha6, a6, d7, q7).subs(DH)
-
-    T0_EE = T0_1 * T1_2 * T2_3 * T3_4 * T4_5 * T5_6 * T6_EE
-
-    #Set Roll Pitch and Yaw to end-effector postion
-    (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(
-        [req.poses[x].orientation.x, req.poses[x].orientation.y,
-            req.poses[x].orientation.z, req.poses[x].orientation.w])
-
-    # Create Rotation Matrices
-    Roll_rot = Matrix([[ 1,         0,          0],
-                     [ 0, cos(r), -sin(r)],
-                     [ 0, sin(r), cos(r)]])
-
-    Pitch_rot = Matrix([[ cos(p),  0, sin(p)],
-    	               [          0,  1,          0],
-    	               [-sin(p),  0, cos(p)]])
-
-    Yaw_rot = Matrix([[ cos(y), -sin(y), 0],
-    	             [ sin(y),  cos(y), 0],
-    	             [        0,         0, 1]])
-
-    EE_rot = Yaw_rot * Pitch_rot * Roll_rot
-
-    # Compensate for rotation discrepancy between DH parameters and Gazebo
-    # calculate error between urdf and dh
-    #rotate 180 degrees around z
-    R_z = Yaw_rot.subs(y, radians(180))
-    #Rotate 90 degrees around y
-    R_y = Pitch_rot.subs(p, radians(-90))
-
-    R_error = simplify(R_z * R_y)
-
-    EE_rot = EE_rot * R_error
-
-    EE_rot = EE_rot.subs({'r': roll, 'p': pitch, 'y': yaw})
+    
 
 
 
