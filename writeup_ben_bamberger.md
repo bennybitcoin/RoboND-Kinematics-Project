@@ -229,10 +229,9 @@ In my initial runs my robot arm seemed to go in too far each time, therby knocki
 
 The final issue I had to correct was the robot arm not accurately achieveing the center of the trash bin. (see image below) I reduced my theta1 by 12% and theta2 by 31% and I was able to achieve a position in the center of the bin to drop. I believe this error was an effect of me artificially increasing the wrist center length to solve the previous issue
 
-///python
-theta1 = atan2(WC[1],WC[0]) * 0.88
-theta2 = (pi / 2 - angle_a - atan2(WC[2] - 0.75, sqrt(WC_average) - 0.35))*0.69
-///
+	theta1 = atan2(WC[1],WC[0]) * 0.88
+	theta2 = (pi / 2 - angle_a - atan2(WC[2] - 0.75, sqrt(WC_average) - 0.35))*0.69
+
 ![alt text][image8]
 After applying the percentage changes to theta values described above I was able to do a successful 8/10 run(below). The two errors were due to the gripper for some reason not grasping the bottle though it was in the correct position. I think I may have triggered the robot to move before the bottle was fully grasped. I will continue to explore remedies to this issue to achieve a better success rate.
 ![alt text][image9]
