@@ -133,11 +133,11 @@ def handle_calculate_IK(req):
     pz = req.poses[x].position.z
     
     # Wrist center calculation
-    WC = Matrix([px, py, pz]) - (DH[d7]*1.21) * EE_rot[:,2]
+    WC = Matrix([px, py, pz]) - (DH[d7]*1.23) * EE_rot[:,2]
 
 
     # Calculate joint angles using Geometric IK method
-    theta1 = atan2(WC[1],WC[0])
+    theta1 = atan2(WC[1],WC[0]) * 0.88
     WC_average = WC[0] * WC[0] + WC[1] * WC[1]
     # SSS triangle
     side_a = 1.501
@@ -148,7 +148,7 @@ def handle_calculate_IK(req):
     angle_b = acos((side_a * side_a + side_c * side_c - side_b * side_b) / (2 * side_a * side_c))    
     angle_c = acos((side_a * side_a + side_b * side_b - side_c * side_c) / (2 * side_a * side_b))
 
-    theta2 = pi / 2 - angle_a - atan2(WC[2] - 0.75, sqrt(WC_average) - 0.35)
+    theta2 = (pi / 2 - angle_a - atan2(WC[2] - 0.75, sqrt(WC_average) - 0.35))*0.69
     theta3 = pi / 2 - (angle_b + 0.036) #-0.054m sag in link 4
     Rot_03 = T0_1[0:3,0:3] * T1_2[0:3,0:3] * T2_3[0:3,0:3]
     Rot_03 = Rot_03.evalf(subs={q1: theta1, q2: theta2, q3: theta3})
