@@ -87,7 +87,8 @@ The code below creates the full transform to the End-effector gripper pose from 
 
    ###Kuka KR210###
    #DH Parameters
-    DH = {alpha0: 0,     a0: 0,      d1: 0.75,   q1:0,
+   
+   	 DH = {alpha0: 0,     a0: 0,      d1: 0.75,   q1:0,
          alpha1: -pi/2, a1: 0.35,   d2: 0,     q2: q2-pi/2,
          alpha2: 0,     a2: 1.25,   d3: 0,  q3: 0,
          alpha3: -pi/2, a3: -0.054, d4: 1.50,   q4: 0,
