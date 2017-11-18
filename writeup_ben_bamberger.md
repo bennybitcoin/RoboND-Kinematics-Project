@@ -73,7 +73,7 @@ The code below creates the full transform to the End-effector gripper pose from 
 
 
 # Create Transform between base_link and gripper link (EE_rot)
-///python
+
     d1, d2, d3, d4, d5, d6, d7 = symbols('d1:8') #link offsets
     a0, a1, a2, a3, a4, a5, a6 = symbols('a0:7') #link lengths
     alpha0, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6 = symbols('alpha0:7') #twist angle
@@ -169,7 +169,7 @@ The code below creates the full transform to the End-effector gripper pose from 
     
     # Wrist center calculation
     WC = Matrix([px, py, pz]) - (DH[d7]*1.23) * EE_rot[:,2]
-///    
+   
 
 I checked that my predicted values were a good match to the actual values and applied an error correction where necessary. Ran some basic tests and was able to get the robot to grab and drop. Many times though it was knocking over the bottles and hitting into the garbage bin. I made some final adjustments(see Project Implementation) to gain a successful solution.
 
@@ -190,7 +190,7 @@ Theta 4,5,6 required me to solve the following equation and extract Euler angles
 
 
 # Calculate joint angles using Geometric IK method
-///python
+
     theta1 = atan2(WC[1],WC[0]) * 0.88
     WC_average = WC[0] * WC[0] + WC[1] * WC[1]
     # SSS triangle
@@ -212,7 +212,7 @@ Theta 4,5,6 required me to solve the following equation and extract Euler angles
     theta4 = atan2(Rot_36[2,2], -Rot_36[0,2])
     theta5 = atan2(sqrt(Rot_36[0,2]*Rot_36[0,2] + Rot_36[2,2]*Rot_36[2,2]),Rot_36[1,2])
     theta6 = atan2(-Rot_36[1,1], Rot_36[1,0])
-///
+
 
 
 
