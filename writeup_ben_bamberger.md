@@ -77,7 +77,9 @@ I used the <!-- joints --> section in "kuka_arm/urdf/kr210.urdf.xacro" file in o
 <origin xyz="0.54 0 0" rpy="0 0 0"/>
 <origin xyz="0.193 0 0" rpy="0 0 0"/>
 
+which tells me:
 
+![alt text][image13]
 
 
 I then used these values to derive the lengths and angles between each point via the pythagorean theorem, the meanings of the values are as follows:
@@ -99,7 +101,7 @@ The code below creates the full transform to the End-effector gripper pose from 
 
 The homogenous transform is created as a combination of two rotations(R) and two translations (D) shown in the final line of equations below:
 
-
+![alt text][image12]
 
 This transformation matrix was used to create the individual transformation matrices which were then combined to create the total translation matrix from the base_link to the end_effector.
 
