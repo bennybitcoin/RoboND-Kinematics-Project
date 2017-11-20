@@ -28,6 +28,8 @@
 [image9]: ./misc_images/IMG-8085.png
 [image10]: ./misc_images/IMG-8086.png
 [image11]: ./misc_images/IMG-8087.png
+[image12]: ./misc_images/IMG-8092.png
+[image13]: ./misc_images/IMG-8093.png
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/972/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
@@ -54,7 +56,7 @@ I first created a sketch of the Denavit Hartenberg reference frame:
 
 Then I used the values from KR210 urdf to create my DH parameter table:
 
-Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
+Links | alpha(i-1) | a(i-1) | d(i) | theta(i)
 --- | --- | --- | --- | ---
 0->1 | 0 | 0 | 0.75 | q1
 1->2 | - pi/2 | 0.35 | 0 | -pi/2 + q2
@@ -64,13 +66,42 @@ Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
 5->6 | - pi/2 | 0 | 0 | q6
 6->EE | 0 | 0 | 0.303 | 0
 
+**********Additional Explanation as per First Review Request:***********
+
+I used the <!-- joints --> section in "kuka_arm/urdf/kr210.urdf.xacro" file in order to find the distances between the origin points of the each link:
+
+<origin xyz="0 0 0.33" rpy="0 0 0"/>
+<origin xyz="0.35 0 0.42" rpy="0 0 0"/>
+<origin xyz="0 0 1.25" rpy="0 0 0"/>
+<origin xyz="0.96 0 -0.054" rpy="0 0 0"/>
+<origin xyz="0.54 0 0" rpy="0 0 0"/>
+<origin xyz="0.193 0 0" rpy="0 0 0"/>
+
+
+
+
+I then used these values to derive the lengths and angles between each point via the pythagorean theorem, the meanings of the values are as follows:
+
+alpha(i-1) : Twist angle about Z axis using RHR
+a(i-1) : Link length along X axis
+d(i) : Link offset along Z-axis
+theta(i) : Joint angle about X-axis using RHR
+q(i) : Angle of the joint (i)
+
+
 #### 2. Using the DH parameter table you derived earlier, create individual transformation matrices about each joint. In addition, also generate a generalized homogeneous transform between base_link and gripper_link using only end-effector(gripper) pose.
 
 
 
 The code below creates the full transform to the End-effector gripper pose from the fixed base link. Substituted DH parameters into the Transformation Matrix function, for each individual length between links and then multiplied them all together to find the full transformation from base to end-effector(T0_EE).
 
+**********Additional Explanation as per First Review Request:***********
 
+The homogenous transform is created as a combination of two rotations(R) and two translations (D) shown in the final line of equations below:
+
+
+
+This transformation matrix was used to create the individual transformation matrices which were then combined to create the total translation matrix from the base_link to the end_effector.
 
 # Create Transform between base_link and gripper link (EE_rot)
 
