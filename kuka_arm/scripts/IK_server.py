@@ -30,7 +30,7 @@ def handle_calculate_IK(req):
         joint_trajectory_list = []
         for x in xrange(0, len(req.poses)):
             joint_trajectory_point = JointTrajectoryPoint()
- 
+
     # Create Modified DH parameters
     d1, d2, d3, d4, d5, d6, d7 = symbols('d1:8') #link offsets
     a0, a1, a2, a3, a4, a5, a6 = symbols('a0:7') #link lengths
@@ -47,12 +47,12 @@ def handle_calculate_IK(req):
    #DH Parameters
     DH = {alpha0: 0,     a0: 0,      d1: 0.75,   q1:0,
          alpha1: -pi/2, a1: 0.35,   d2: 0,     q2: q2-pi/2,
-         alpha2: 0,     a2: 1.25,   d3: 0,  q3: 0,
-         alpha3: -pi/2, a3: -0.054, d4: 1.50,   q4: 0,
-         alpha4: pi/2,  a4: 0,      d5: 0,  q5: 0,
-         alpha5: -pi/2, a5: 0,      d6: 0,  q6: 0,
+         alpha2: 0,     a2: 1.25,   d3: 0,  q3: q3,
+         alpha3: -pi/2, a3: -0.054, d4: 1.50,   q4: q4,
+         alpha4: pi/2,  a4: 0,      d5: 0,  q5: q5,
+         alpha5: -pi/2, a5: 0,      d6: 0,  q6: q6,
          alpha6: 0,     a6: 0,      d7: 0.303,  q7: 0}
-   #DH test parameters	
+   #DH test parameters
    # DH_test = {alpha0: 0,     a0: 0,      d1: 0.75,  q1:0,
    #       alpha1: 0, a1: 0.35,   d2: 0,  q2: q2-pi/2,
    #       alpha2: 0,     a2: 1.25,   d3: 0,  q3: 0,
@@ -61,7 +61,7 @@ def handle_calculate_IK(req):
    #       alpha5: -pi/2, a5: 0,      d6: 0,  q6: 0,
    #       alpha6: 0,     a6: 0,      d7: 0.303,  q7: 0}
 
-    #            
+    #
     # Define Modified DH Transformation matrix function
     def Trans_Matrix(alpha, a, d, q):
     	TF = Matrix([[cos(q),  -sin(q),    0,  a],
@@ -102,7 +102,7 @@ def handle_calculate_IK(req):
     	             [        0,         0, 1]])
 
     EE_rot = Yaw_rot * Pitch_rot * Roll_rot
-	
+
     #Numerically Evaluate transforms to compare with tf_echo
     # print("T0_1 = ",T0_1 = Trans_Matrix(alpha0, a0, d1, q1).subs(DH_test))
     # print("T1_2 = ",T1_2 = Trans_Matrix(alpha1, a1, d2, q2).subs(DH_test))
@@ -131,25 +131,25 @@ def handle_calculate_IK(req):
     px = req.poses[x].position.x
     py = req.poses[x].position.y
     pz = req.poses[x].position.z
-    
+
     # Wrist center calculation
     WC = Matrix([px, py, pz]) - (DH[d7]*1.23) * EE_rot[:,2]
 
 
     # Calculate joint angles using Geometric IK method
-    theta1 = atan2(WC[1],WC[0]) * 0.88
+    theta1 = atan2(WC[1],WC[0])
     WC_average = WC[0] * WC[0] + WC[1] * WC[1]
     # SSS triangle
     side_a = 1.501
-    side_b = sqrt(pow((sqrt(WC_average) - 0.35), 2) + pow((WC[2] - 0.75), 2))
+    side_b = sqrt(pow((sqrt(WC_average) - DH_table[a1]), 2) + pow((WC[2] - DH_table[d1]), 2))
     side_c = 1.25
 
     angle_a = acos((side_b * side_b + side_c * side_c - side_a * side_a) / (2 * side_b * side_c))
-    angle_b = acos((side_a * side_a + side_c * side_c - side_b * side_b) / (2 * side_a * side_c))    
+    angle_b = acos((side_a * side_a + side_c * side_c - side_b * side_b) / (2 * side_a * side_c))
     angle_c = acos((side_a * side_a + side_b * side_b - side_c * side_c) / (2 * side_a * side_b))
 
-    theta2 = (pi / 2 - angle_a - atan2(WC[2] - 0.75, sqrt(WC_average) - 0.35))*0.69
-    theta3 = pi / 2 - (angle_b + 0.036) #-0.054m sag in link 4
+    theta2 = (pi / 2 - angle_a - atan2(WC[2] - DH_table[d1], sqrt(WC_average) - DH_table[a1])
+    theta3 = pi / 2 - (angle_b + atan2(WC[1], WC[0])) #-0.054m sag in link 4
     Rot_03 = T0_1[0:3,0:3] * T1_2[0:3,0:3] * T2_3[0:3,0:3]
     Rot_03 = Rot_03.evalf(subs={q1: theta1, q2: theta2, q3: theta3})
     Rot_36 = Rot_03.inv("LU") * EE_rot
