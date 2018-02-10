@@ -279,7 +279,7 @@ The final issue I had to correct was the robot arm not accurately achieveing the
 
 ## Current Submission #3:
 
-After changing my IK formulas for my theta angles, I was able to resume using the normal 0.303 value for my wrist center position. I went through and corrected my parameters to match what I derived in part one and removed any hardcoded values I was using for error adjustments.
+After changing my IK formulas for my theta angles, I was able to resume using the normal 0.303 value for my wrist center position. I went through and corrected my parameters to match what I derived in part one and removed any hardcoded constant values I was using for error adjustments as per the comments on my last submission. 
 
 
 successful 8/10 run(below). 
