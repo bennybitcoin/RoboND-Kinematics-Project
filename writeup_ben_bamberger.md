@@ -30,6 +30,7 @@
 [image11]: ./misc_images/IMG-8087.png
 [image12]: ./misc_images/IMG-8092.png
 [image13]: ./misc_images/IMG-8093.png
+[image14]: ./misc_images/pickandplace_error.PNG
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/972/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
@@ -107,6 +108,7 @@ This transformation matrix was used to create the individual transformation matr
 
 # Create Transform between base_link and gripper link (EE_rot)
 
+    # Create Modified DH parameters
     d1, d2, d3, d4, d5, d6, d7 = symbols('d1:8') #link offsets
     a0, a1, a2, a3, a4, a5, a6 = symbols('a0:7') #link lengths
     alpha0, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6 = symbols('alpha0:7') #twist angle
@@ -114,31 +116,32 @@ This transformation matrix was used to create the individual transformation matr
     # Joint angle symbols
     q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8') #theta_i
 
-    #Variables for Rotation Matrix
-    r, p, y = symbols('r p y')
-    #x, y, z = symbols('x y z')
-
    ###Kuka KR210###
    #DH Parameters
-   
-   	 DH = {alpha0: 0,     a0: 0,      d1: 0.75,   q1:0,
+    DH = {alpha0: 0,     a0: 0,      d1: 0.75,
          alpha1: -pi/2, a1: 0.35,   d2: 0,     q2: q2-pi/2,
-         alpha2: 0,     a2: 1.25,   d3: 0,  q3: 0,
-         alpha3: -pi/2, a3: -0.054, d4: 1.50,   q4: 0,
-         alpha4: pi/2,  a4: 0,      d5: 0,  q5: 0,
-         alpha5: -pi/2, a5: 0,      d6: 0,  q6: 0,
+         alpha2: 0,     a2: 1.25,   d3: 0,
+         alpha3: -pi/2, a3: -0.054, d4: 1.50,
+         alpha4: pi/2,  a4: 0,      d5: 0,
+         alpha5: -pi/2, a5: 0,      d6: 0,
          alpha6: 0,     a6: 0,      d7: 0.303,  q7: 0}
-  
+   #DH test parameters
+   # DH_test = {alpha0: 0,     a0: 0,      d1: 0.75,  q1:0,
+   #       alpha1: 0, a1: 0.35,   d2: 0,  q2: q2-pi/2,
+   #       alpha2: 0,     a2: 1.25,   d3: 0,  q3: 0,
+   #       alpha3: -pi/2, a3: -0.054, d4: 1.50,   q4: 0,
+   #       alpha4: pi/2,  a4: 0,      d5: 0,  q5: 0,
+   #       alpha5: -pi/2, a5: 0,      d6: 0,  q6: 0,
+   #       alpha6: 0,     a6: 0,      d7: 0.303,  q7: 0}
 
-    #            
+    #
     # Define Modified DH Transformation matrix function
     def Trans_Matrix(alpha, a, d, q):
-    	TF = Matrix([[cos(q),  -sin(q),    0,  a],
-    		[sin(q)*cos(alpha),  cos(q)*cos(alpha),  -sin(alpha),    -sin(alpha)*d],
-    		[sin(q)*sin(alpha),   cos(q)*sin(alpha),  cos(alpha), cos(alpha)*d],
-    		[0,       0,      0,      1]])
-    	return TF
-
+        TF = Matrix([[cos(q),  -sin(q),    0,  a],
+            [sin(q)*cos(alpha),  cos(q)*cos(alpha),  -sin(alpha),    -sin(alpha)*d],
+            [sin(q)*sin(alpha),   cos(q)*sin(alpha),  cos(alpha), cos(alpha)*d],
+            [0,       0,      0,      1]])
+        return TF
 
     #
     # Create individual transformation matrices
@@ -150,7 +153,16 @@ This transformation matrix was used to create the individual transformation matr
     T5_6 = Trans_Matrix(alpha5, a5, d6, q6).subs(DH)
     T6_EE = Trans_Matrix(alpha6, a6, d7, q7).subs(DH)
 
-    T0_EE = T0_1 * T1_2 * T2_3 * T3_4 * T4_5 * T5_6 * T6_EE
+    T0_EE = simplify(T0_1 * T1_2 * T2_3 * T3_4 * T4_5 * T5_6 * T6_EE)
+
+
+
+    #IK CODE================================================
+    # Extract rotation matrices from the transformation matrices
+    # End effector positions:
+    px = req.poses[x].position.x
+    py = req.poses[x].position.y
+    pz = req.poses[x].position.z
 
     #Set Roll Pitch and Yaw to end-effector postion
     (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(
@@ -158,20 +170,24 @@ This transformation matrix was used to create the individual transformation matr
             req.poses[x].orientation.z, req.poses[x].orientation.w])
 
     # Create Rotation Matrices
+
+    #Variables for Rotation Matrix
+    r, p, y = symbols('r p y')
+
     Roll_rot = Matrix([[ 1,         0,          0],
                      [ 0, cos(r), -sin(r)],
                      [ 0, sin(r), cos(r)]])
 
     Pitch_rot = Matrix([[ cos(p),  0, sin(p)],
-    	               [          0,  1,          0],
-    	               [-sin(p),  0, cos(p)]])
+                       [          0,  1,          0],
+                       [-sin(p),  0, cos(p)]])
 
     Yaw_rot = Matrix([[ cos(y), -sin(y), 0],
-    	             [ sin(y),  cos(y), 0],
-    	             [        0,         0, 1]])
+                     [ sin(y),  cos(y), 0],
+                     [        0,         0, 1]])
 
     EE_rot = Yaw_rot * Pitch_rot * Roll_rot
-	
+
     #Numerically Evaluate transforms to compare with tf_echo
     # print("T0_1 = ",T0_1 = Trans_Matrix(alpha0, a0, d1, q1).subs(DH_test))
     # print("T1_2 = ",T1_2 = Trans_Matrix(alpha1, a1, d2, q2).subs(DH_test))
@@ -194,18 +210,16 @@ This transformation matrix was used to create the individual transformation matr
 
     EE_rot = EE_rot.subs({'r': roll, 'p': pitch, 'y': yaw})
 
-    #
-    # Extract rotation matrices from the transformation matrices
-    # End effector positions:
-    px = req.poses[x].position.x
-    py = req.poses[x].position.y
-    pz = req.poses[x].position.z
-    
+
     # Wrist center calculation
-    WC = Matrix([px, py, pz]) - (DH[d7]*1.23) * EE_rot[:,2]
+    WC = Matrix([px, py, pz]) - (0.303) * EE_rot[:,2]
    
 
 I checked that my predicted values were a good match to the actual values and applied an error correction where necessary. Ran some basic tests and was able to get the robot to grab and drop. Many times though it was knocking over the bottles and hitting into the garbage bin. I made some final adjustments(see Project Implementation) to gain a successful solution.
+
+Submission #3:
+
+I corrected my IK calculations for my joint angles (see next section). Therefore I could resume using the normal Wrist Center position without any error adjustments.
 
 
 
@@ -225,19 +239,20 @@ Theta 4,5,6 required me to solve the following equation and extract Euler angles
 
 # Calculate joint angles using Geometric IK method
 
-    theta1 = atan2(WC[1],WC[0]) * 0.88
+    theta1 = atan2(WC[1],WC[0])
     WC_average = WC[0] * WC[0] + WC[1] * WC[1]
     # SSS triangle
     side_a = 1.501
-    side_b = sqrt(pow((sqrt(WC_average) - 0.35), 2) + pow((WC[2] - 0.75), 2))
+    side_b = sqrt(pow((sqrt(WC_average) - DH[a1]), 2) + pow((WC[2] - DH[d1]), 2))
     side_c = 1.25
 
     angle_a = acos((side_b * side_b + side_c * side_c - side_a * side_a) / (2 * side_b * side_c))
-    angle_b = acos((side_a * side_a + side_c * side_c - side_b * side_b) / (2 * side_a * side_c))    
-    angle_c = acos((side_a * side_a + side_b * side_b - side_c * side_c) / (2 * side_a * side_b))
+    angle_b = acos((side_a * side_a + side_c * side_c - side_b * side_b) / (2 * side_a * side_c))
+    #angle_c = acos((side_a * side_a + side_b * side_b - side_c * side_c) / (2 * side_a * side_b))
+    angle_d = atan2(WC[2] - DH[d1], sqrt(WC_average) - DH[a1])
 
-    theta2 = (pi / 2 - angle_a - atan2(WC[2] - 0.75, sqrt(WC_average) - 0.35))*0.69
-    theta3 = pi / 2 - (angle_b + 0.036) #-0.054m sag in link 4
+    theta2 = pi/2 - angle_a - angle_d ### removed my adjustment from previous adjustment
+    theta3 = pi/2 - (angle_b + 0.036) #-0.054m sag in link 4
     Rot_03 = T0_1[0:3,0:3] * T1_2[0:3,0:3] * T2_3[0:3,0:3]
     Rot_03 = Rot_03.evalf(subs={q1: theta1, q2: theta2, q3: theta3})
     Rot_36 = Rot_03.inv("LU") * EE_rot
@@ -248,23 +263,24 @@ Theta 4,5,6 required me to solve the following equation and extract Euler angles
     theta6 = atan2(-Rot_36[1,1], Rot_36[1,0])
 
 
+    For this most recent submission I recalculated my angle formulas, and was able to achieve a much lower for my thetas <0.0026. See image below:
+
+
 
 
 ### Project Implementation
 
 #### 1. Fill in the `IK_server.py` file with properly commented python code for calculating Inverse Kinematics based on previously performed Kinematic Analysis. Your code must guide the robot to successfully complete 8/10 pick and place cycles. Briefly discuss the code you implemented and your results. 
 
-
-In my initial runs my robot arm seemed to go in too far each time, therby knocking over the cans. In order to compensate for this error I made the decision to extend my DH value for d7 from 0.303 to 0.36663(a 21% distance). By moving the wrist center position out like this, I caused the robot to use the far edge of its gripper for grasping. This caused it to have less issues with knocking the cans:
-
-
-![alt text][image7]
+## Submission 2:
+In my initial runs my robot arm seemed to go in too far each time, therby knocking over the cans. In order to compensate for this error I made the decision to extend my DH value for d7 from 0.303 to 0.36663(a 21% distance). By moving the wrist center position out like this, I caused the robot to use the far edge of its gripper for grasping. This caused it to have less issues with knocking the cans.
 
 The final issue I had to correct was the robot arm not accurately achieveing the center of the trash bin. (see image below) I reduced my theta1 by 12% and theta2 by 31% and I was able to achieve a position in the center of the bin to drop. I believe this error was an effect of me artificially increasing the wrist center length to solve the previous issue
 
-	theta1 = atan2(WC[1],WC[0]) * 0.88
-	theta2 = (pi / 2 - angle_a - atan2(WC[2] - 0.75, sqrt(WC_average) - 0.35))*0.69
+## Current Submission #3:
 
-![alt text][image8]
-After applying the percentage changes to theta values described above I was able to do a successful 8/10 run(below). The two errors were due to the gripper for some reason not grasping the bottle though it was in the correct position. I think I may have triggered the robot to move before the bottle was fully grasped. I will continue to explore remedies to this issue to achieve a better success rate.
+After changing my IK formulas for my theta angles, I was able to resume using the normal 0.303 value for my wrist center position. I went through and corrected my parameters to match what I derived in part one and removed any hardcoded values I was using for error adjustments.
+
+
+successful 8/10 run(below). 
 ![alt text][image9]
