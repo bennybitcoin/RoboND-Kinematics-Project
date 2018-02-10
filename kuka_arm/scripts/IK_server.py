@@ -83,6 +83,13 @@ def handle_calculate_IK(req):
 
     T0_EE = T0_1 * T1_2 * T2_3 * T3_4 * T4_5 * T5_6 * T6_EE
 
+    #
+    # Extract rotation matrices from the transformation matrices
+    # End effector positions:
+    px = req.poses[x].position.x
+    py = req.poses[x].position.y
+    pz = req.poses[x].position.z
+
     #Set Roll Pitch and Yaw to end-effector postion
     (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(
         [req.poses[x].orientation.x, req.poses[x].orientation.y,
@@ -125,33 +132,27 @@ def handle_calculate_IK(req):
 
     EE_rot = EE_rot.subs({'r': roll, 'p': pitch, 'y': yaw})
 
-    #
-    # Extract rotation matrices from the transformation matrices
-    # End effector positions:
-    px = req.poses[x].position.x
-    py = req.poses[x].position.y
-    pz = req.poses[x].position.z
-
     # Wrist center calculation
-    WC = Matrix([px, py, pz]) - (DH[d7]*1.23) * EE_rot[:,2]
-
+    WC = Matrix([[px], [py], [pz]]) - (3.03) * EE_rot[:,2]
 
     # Calculate joint angles using Geometric IK method
     theta1 = atan2(WC[1],WC[0])
     WC_average = WC[0] * WC[0] + WC[1] * WC[1]
     # SSS triangle
     side_a = 1.501
-    side_b = sqrt(pow((sqrt(WC_average) - DH_table[a1]), 2) + pow((WC[2] - DH_table[d1]), 2))
+    side_b = sqrt(pow((sqrt(WC_average) - 0.35), 2) + pow((WC[2] - 0.75), 2))
     side_c = 1.25
 
     angle_a = acos((side_b * side_b + side_c * side_c - side_a * side_a) / (2 * side_b * side_c))
     angle_b = acos((side_a * side_a + side_c * side_c - side_b * side_b) / (2 * side_a * side_c))
     angle_c = acos((side_a * side_a + side_b * side_b - side_c * side_c) / (2 * side_a * side_b))
 
-    theta2 = (pi / 2 - angle_a - atan2(WC[2] - DH_table[d1], sqrt(WC_average) - DH_table[a1])
-    theta3 = pi / 2 - (angle_b + atan2(WC[1], WC[0])) #-0.054m sag in link 4
+    theta2 = pi / 2 - angle_a - atan2(WC[2] - 0.75, sqrt(WC_average) - 0.35)
+    theta3 = pi / 2 - (angle_b + 0.036) #-0.054m sag in link 4
+
     Rot_03 = T0_1[0:3,0:3] * T1_2[0:3,0:3] * T2_3[0:3,0:3]
     Rot_03 = Rot_03.evalf(subs={q1: theta1, q2: theta2, q3: theta3})
+
     Rot_36 = Rot_03.inv("LU") * EE_rot
 
     #Euler Angles from Rotation Matrix
