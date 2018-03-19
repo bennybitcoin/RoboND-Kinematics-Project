@@ -31,6 +31,8 @@
 [image12]: ./misc_images/IMG-8092.png
 [image13]: ./misc_images/IMG-8093.png
 [image14]: ./misc_images/pickandplace_error.PNG
+[image15]: ./misc_images/resultant.png
+
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/972/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
@@ -94,7 +96,9 @@ q(i) : Angle of the joint (i)
 
 #### 2. Using the DH parameter table you derived earlier, create individual transformation matrices about each joint. In addition, also generate a generalized homogeneous transform between base_link and gripper_link using only end-effector(gripper) pose.
 
-
+**********Additional Mathematical as per THIRD Review Request(most recent):***********
+Below are the resultant matrices for the transform from each link to the next link, I also added the file "solver.py" in the scripts file to output my total homogenous transform from the base link to the end effector
+![alt text][image15]
 
 The code below creates the full transform to the End-effector gripper pose from the fixed base link. Substituted DH parameters into the Transformation Matrix function, for each individual length between links and then multiplied them all together to find the full transformation from base to end-effector(T0_EE).
 
