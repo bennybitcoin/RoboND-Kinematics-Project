@@ -48,14 +48,7 @@ def handle_calculate_IK(req):
          alpha4: pi/2,  a4: 0,      d5: 0,
          alpha5: -pi/2, a5: 0,      d6: 0,
          alpha6: 0,     a6: 0,      d7: 0.303,  q7: 0}
-   #DH test parameters
-   # DH_test = {alpha0: 0,     a0: 0,      d1: 0.75,  q1:0,
-   #       alpha1: 0, a1: 0.35,   d2: 0,  q2: q2-pi/2,
-   #       alpha2: 0,     a2: 1.25,   d3: 0,  q3: 0,
-   #       alpha3: -pi/2, a3: -0.054, d4: 1.50,   q4: 0,
-   #       alpha4: pi/2,  a4: 0,      d5: 0,  q5: 0,
-   #       alpha5: -pi/2, a5: 0,      d6: 0,  q6: 0,
-   #       alpha6: 0,     a6: 0,      d7: 0.303,  q7: 0}
+   
 
     #
     # Define Modified DH Transformation matrix function
@@ -77,7 +70,6 @@ def handle_calculate_IK(req):
     T6_EE = Trans_Matrix(alpha6, a6, d7, q7).subs(DH)
 
     T0_EE = simplify(T0_1 * T1_2 * T2_3 * T3_4 * T4_5 * T5_6 * T6_EE)
-
 
 
     #IK CODE================================================
