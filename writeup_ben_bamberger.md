@@ -31,7 +31,7 @@
 [image12]: ./misc_images/IMG-8092.png
 [image13]: ./misc_images/IMG-8093.png
 [image14]: ./misc_images/pickandplace_error.PNG
-[image15]: ./misc_images/resultant.png
+[image15]: ./misc_images/results.png
 
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/972/view) Points
