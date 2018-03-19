@@ -97,7 +97,7 @@ q(i) : Angle of the joint (i)
 #### 2. Using the DH parameter table you derived earlier, create individual transformation matrices about each joint. In addition, also generate a generalized homogeneous transform between base_link and gripper_link using only end-effector(gripper) pose.
 
 **********Additional Mathematical as per THIRD Review Request(most recent):***********
-Below are the resultant matrices for the transform from each link to the next link, I also added the file "solver.py" in the scripts file to output my total homogenous transform from the base link to the end effector
+Below are the resultant matrices for the transform from each link to the next link, I also added the file "solve.py" in the scripts file to output my total homogenous transform from the base link to the end effector
 ![alt text][image15]
 
 The code below creates the full transform to the End-effector gripper pose from the fixed base link. Substituted DH parameters into the Transformation Matrix function, for each individual length between links and then multiplied them all together to find the full transformation from base to end-effector(T0_EE).
@@ -121,7 +121,7 @@ This transformation matrix was used to create the individual transformation matr
     q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8') #theta_i
 
    
-   #DH Parameters
+    #DH Parameters
     DH = {alpha0: 0,     a0: 0,      d1: 0.75,
          alpha1: -pi/2, a1: 0.35,   d2: 0,     q2: q2-pi/2,
          alpha2: 0,     a2: 1.25,   d3: 0,
